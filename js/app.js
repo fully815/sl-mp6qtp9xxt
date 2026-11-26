@@ -6,7 +6,7 @@
 
 /* アプリのバージョン。
    ★ 変えるときは、service-worker.js の CACHE_VERSION も同じ番号にしてください ★ */
-const APP_VERSION = '0.8.0';
+const APP_VERSION = '0.9.0';
 
 const DISCLAIMER =
   '本アプリは個人学習用に作成された非公式の練習アプリです。' +

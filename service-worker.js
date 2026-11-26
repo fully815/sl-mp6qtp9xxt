@@ -8,7 +8,7 @@
      番号を変えないと、利用者の端末には古いファイルが残り続けます。
    ========================================================== */
 
-const CACHE_VERSION = '0.8.0';
+const CACHE_VERSION = '0.9.0';
 const CACHE_PREFIX = 'studylog-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
 
@@ -22,6 +22,12 @@ const FILES = [
   './css/style.css',
   './js/questions.js',
   './js/questions-2.js',
+  './js/questions-3.js',
+  './js/questions-4.js',
+  './js/questions-5.js',
+  './js/questions-6.js',
+  './js/questions-7.js',
+  './js/questions-8.js',
   './js/storage.js',
   './js/analytics.js',
   './js/mock.js',
