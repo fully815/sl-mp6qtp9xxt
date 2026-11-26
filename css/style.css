@@ -636,7 +636,7 @@ h3 { margin: 0; font-size: 0.95rem; }
 
 :root {
   --navy: #132446;
-  --blue: #2f6fe4;
+  --blue: #2360d0;
   --blue-soft: #e9f1fe;        /* 選択中・強調の薄い背景 */
   --bg: #f2f4f8;
   --surface: #ffffff;
@@ -856,6 +856,10 @@ h2 { font-size: 1.02rem; font-weight: 700; }
 .qgrid__btn { border-radius: 12px; }
 .qgrid__btn.is-answered { background: var(--blue-soft); }
 .qgrid__btn[aria-current="true"] { background: var(--blue); border-color: var(--blue); }
+:root[data-theme="dark"] .qgrid__btn[aria-current="true"] { background: #2f6fe4; border-color: #2f6fe4; }
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] .qgrid__btn[aria-current="true"] { background: #2f6fe4; border-color: #2f6fe4; }
+}
 .notice { border: 0; border-left: 5px solid var(--blue); }
 .toggle input { accent-color: var(--blue); }
 .field select { border-radius: 12px; }

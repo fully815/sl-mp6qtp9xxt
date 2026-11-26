@@ -6,7 +6,7 @@
 
 /* アプリのバージョン。
    ★ 変えるときは、service-worker.js の CACHE_VERSION も同じ番号にしてください ★ */
-const APP_VERSION = '0.9.0';
+const APP_VERSION = '0.9.1';
 
 const DISCLAIMER =
   '本アプリは個人学習用に作成された非公式の練習アプリです。' +
@@ -243,6 +243,8 @@ function playEffects(isCorrect) {
     // 音声ファイルは使わず、その場で短い音を作る（オフラインでも鳴る）
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     audioContext = audioContext || new AudioCtx();
+    // iPhone では、アプリを閉じて戻ったあとに音が止まった状態になることがあるので、再開させる
+    if (audioContext.state !== 'running' && audioContext.resume) audioContext.resume();
     const osc = audioContext.createOscillator();
     const gain = audioContext.createGain();
     osc.frequency.value = isCorrect ? 880 : 220;

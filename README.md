@@ -131,5 +131,5 @@ git push
 - [x] フェーズ6　PWAとオフライン対応
 - [x] フェーズ7　GitHub Pagesへの公開（<https://fully815.github.io/sl-mp6qtp9xxt/>）
 - [x] フェーズ8　iPhoneへのインストール
-- [ ] フェーズ9　テストと不具合修正
+- [x] フェーズ9　テストと不具合修正
 - [ ] フェーズ10　問題追加と機能拡張
