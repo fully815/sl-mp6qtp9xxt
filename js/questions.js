@@ -37,6 +37,7 @@ const EXAMS = [
     overview: '論理的な処理力を測る形式の練習です（内容は目安）。',
     hasPersonality: true,
     categories: [
+      { id: 'mental', name: '暗算' },
       { id: 'reverse-calc', name: '四則逆算' },
       { id: 'pattern', name: '法則性' },
       { id: 'command', name: '命令表' },
@@ -70,9 +71,11 @@ const EXAMS = [
   {
     id: 'other',
     name: 'その他',
-    overview: '自分で追加した独自問題セット用のカテゴリーです。',
+    overview: '一般常識や論理など、その他の形式の練習と、自分で追加する問題用のカテゴリーです（内容は目安）。',
     hasPersonality: false,
     categories: [
+      { id: 'general', name: '一般常識' },
+      { id: 'logic', name: '論理・数列' },
       { id: 'custom', name: '独自問題' }
     ]
   }

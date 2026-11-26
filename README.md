@@ -89,6 +89,7 @@ git push
 | `index.html` | アプリの土台 |
 | `css/style.css` | 見た目（色・レイアウト） |
 | `js/questions.js` | 試験の定義、問題データ、問題追加用テンプレート |
+| `js/questions-2.js` | 追加の問題データ（書き方は `questions.js` と同じ） |
 | `js/storage.js` | 端末内への保存と読み込み |
 | `js/analytics.js` | 学習記録の集計 |
 | `js/mock.js` | 模擬試験（設定・出題・採点・結果） |
