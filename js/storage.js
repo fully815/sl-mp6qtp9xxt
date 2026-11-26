@@ -12,7 +12,8 @@ const Store = (function () {
     history: 'studylog.history.v1',     // 回答の記録
     flags: 'studylog.flags.v1',         // お気に入り・見直し対象
     session: 'studylog.session.v1',     // 中断中の学習（「前回の続き」用）
-    mocks: 'studylog.mocks.v1'          // 模擬試験の結果
+    mocks: 'studylog.mocks.v1',         // 模擬試験の結果
+    notes: 'studylog.notes.v1'          // 問題ごとのメモ
   };
 
   const APP_ID = 'studylog';
@@ -26,7 +27,8 @@ const Store = (function () {
     shuffleQuestions: true,
     shuffleChoices: false,
     questionTimeLimit: false,   // 通常学習で、問題ごとに時間制限をつけるか
-    dailyGoal: 10
+    dailyGoal: 10,
+    examDate: ''          // 目標の受検日（例：'2027-03-01'。未設定は空）
   };
 
   /* ---------- 基本の読み書き ---------- */
@@ -170,8 +172,37 @@ const Store = (function () {
   function resetLearningData() {
     remove(KEYS.history);
     remove(KEYS.flags);
+    remove(KEYS.notes);
     remove(KEYS.mocks);
     remove(KEYS.session);
+  }
+
+  /* ---------- 問題ごとのメモ ----------
+     { '問題のid': 'メモの文章', ... } の形で保存する */
+
+  function cleanNotes(raw) {
+    const result = {};
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return result;
+    Object.keys(raw).forEach(function (id) {
+      if (typeof raw[id] === 'string' && raw[id].trim()) result[id] = raw[id].slice(0, 500);
+    });
+    return result;
+  }
+
+  function getNotes() {
+    return cleanNotes(read(KEYS.notes, {}));
+  }
+
+  // メモを保存する。空にしたときは、その問題のメモを消す
+  function setNote(questionId, text) {
+    const notes = getNotes();
+    const value = String(text || '').slice(0, 500);
+    if (value.trim()) {
+      notes[questionId] = value;
+    } else {
+      delete notes[questionId];
+    }
+    return write(KEYS.notes, notes);
   }
 
   /* ---------- バックアップ（エクスポート） ---------- */
@@ -184,7 +215,8 @@ const Store = (function () {
       settings: getSettings(),
       history: getHistory(),
       flags: getFlags(),
-      mocks: getMocks()
+      mocks: getMocks(),
+      notes: getNotes()
     };
   }
 
@@ -292,7 +324,8 @@ const Store = (function () {
           reviews: isStringList(flags.reviews) ? flags.reviews : []
         },
         settings: cleanSettings(raw.settings),
-        mocks: Array.isArray(raw.mocks) ? raw.mocks.map(cleanMock).filter(Boolean) : []
+        mocks: Array.isArray(raw.mocks) ? raw.mocks.map(cleanMock).filter(Boolean) : [],
+        notes: cleanNotes(raw.notes)
       }
     };
   }
@@ -342,7 +375,10 @@ const Store = (function () {
     history.sort(byDate);
     mocks.sort(function (a, b) { return Date.parse(a.finishedAt) - Date.parse(b.finishedAt); });
 
-    const ok = write(KEYS.history, history) && write(KEYS.flags, flags) && write(KEYS.mocks, mocks);
+    // メモ：置き換えのときはファイルの内容にする。追加のときは、今あるメモを優先して残す
+    const notes = mode === 'replace' ? (data.notes || {}) : Object.assign({}, data.notes || {}, getNotes());
+
+    const ok = write(KEYS.history, history) && write(KEYS.flags, flags) && write(KEYS.mocks, mocks) && write(KEYS.notes, notes);
     if (ok && mode === 'replace') {
       write(KEYS.settings, Object.assign({}, DEFAULT_SETTINGS, data.settings));
       remove(KEYS.session);
@@ -360,6 +396,8 @@ const Store = (function () {
     addMock: addMock,
     getFlags: getFlags,
     toggleFlag: toggleFlag,
+    getNotes: getNotes,
+    setNote: setNote,
     getSession: getSession,
     saveSession: saveSession,
     clearSession: clearSession,

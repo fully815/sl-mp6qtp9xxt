@@ -6,7 +6,7 @@
 
 /* アプリのバージョン。
    ★ 変えるときは、service-worker.js の CACHE_VERSION も同じ番号にしてください ★ */
-const APP_VERSION = '0.9.1';
+const APP_VERSION = '0.10.0';
 
 const DISCLAIMER =
   '本アプリは個人学習用に作成された非公式の練習アプリです。' +
@@ -21,7 +21,8 @@ const MODE_LABELS = {
   unanswered: '未回答の問題',
   favorite: 'お気に入り',
   review: '見直し対象',
-  weak: '苦手分野に集中'
+  weak: '苦手分野に集中',
+  noted: 'メモのある問題'
 };
 
 const appEl = document.getElementById('app');
@@ -131,6 +132,9 @@ function questionPool(config) {
     const flags = Store.getFlags();
     const ids = config.mode === 'favorite' ? flags.favorites : flags.reviews;
     pool = pool.filter(function (q) { return ids.indexOf(q.id) !== -1; });
+  } else if (config.mode === 'noted') {
+    const notes = Store.getNotes();
+    pool = pool.filter(function (q) { return Boolean(notes[q.id]); });
   } else if (config.mode === 'weak') {
     // 苦手度の高い分野（最大3つ）の問題を出題する
     const keys = weakList(config.examId).slice(0, 3).map(function (w) { return w.key; });
@@ -157,6 +161,7 @@ function weakList(examId) {
 
 /* 学習内容を短い言葉で表す（「前回の続き」の表示用） */
 function sessionLabel(config) {
+  if (config.label) return config.label;   // 検索から始めたときなど
   if (config.questionIds) return '間違えた問題の復習';
   let label = config.examId ? examName(config.examId) : '全試験';
   if (config.categoryId) label += '／' + categoryName(config.examId, config.categoryId);
@@ -610,6 +615,8 @@ function renderHome() {
         '<p class="stat__value">' + rateTile(sum.accuracy) + '</p></div>' +
     '</div>';
 
+  html += examDayHtml();   // 目標の受検日までの残り日数（js/extras.js）
+
   if (hasActiveSession()) {
     html += '<section class="card" aria-labelledby="home-resume">' +
       '<h2 id="home-resume">前回の続き</h2>' +
@@ -666,6 +673,7 @@ function renderStudy() {
     '<h1>学習</h1>' +
     '<p class="lead">試験を選んで学習します。' + esc(FORMAT_NOTE) + '</p>' +
     '<button type="button" class="btn btn--block" data-action="open-mock">模擬試験（全試験から出題）</button>' +
+    '<a class="btn btn--block" href="#/search">問題を検索する</a>' +
     '<ul class="list">' + EXAMS.map(function (exam) {
       const p = examProgress(exam.id, history);
       return '<li class="card"><h2>' + esc(exam.name) + '</h2>' +
@@ -813,6 +821,7 @@ function renderQuiz() {
       '<h3>間違えやすいポイント</h3><p class="pre">' + esc(q.commonMistakes) + '</p>' +
       (q.tags && q.tags.length ? '<p class="note">関連する知識：' + esc(q.tags.join('、')) + '</p>' : '') +
     '</section>';
+    html += noteEditorHtml(q.id);   // 自分用のメモ（js/extras.js）
   }
 
   // 画面下部の操作ボタン
@@ -974,6 +983,8 @@ function renderHistory() {
   html += '<section class="card" aria-labelledby="h-mock"><h2 id="h-mock">模擬試験の結果</h2>' +
     mockListHtml() + '</section>';
 
+  html += calendarHtml(all);   // 学習カレンダー（js/extras.js）
+
   html += dataPanelHtml();
 
   if (all.length > 0 || Store.getMocks().length > 0) {
@@ -1022,6 +1033,7 @@ function renderSettings() {
           return '<option value="' + g + '"' + (s.dailyGoal === g ? ' selected' : '') + '>' + g + '問</option>';
         }).join('') + '</select></label>' +
     '</div>' +
+    examDateSettingHtml(s) +
     '<div class="card"><h2>音と振動</h2>' +
       toggle('sound', '効果音を鳴らす', '回答したときに短い音が鳴ります。') +
       toggle('vibration', '振動させる', 'iPhone の Safari は振動に対応していないため、iPhone では動作しません。') +
@@ -1038,7 +1050,10 @@ function renderSettings() {
         '<li>途中で中断しても、ホームの「前回の続き」から再開できます。</li>' +
         '<li>「模擬試験」では、制限時間つきで本番に近い形式の練習ができます。結果は「履歴」に残ります。</li>' +
         '<li>iPhone では、Safari の共有ボタンから「ホーム画面に追加」すると、アプリとして使えます。一度開けば、電波がなくても起動できます。</li>' +
-        '<li>「履歴」で、日ごとの回答数や分野別の正答率を確認できます。</li>' +
+        '<li>「履歴」で、日ごとの回答数や分野別の正答率、学習カレンダーを確認できます。</li>' +
+        '<li>解説の下の「自分用のメモ」に、間違えた理由などを書いておけます。メモを書いた問題は、試験の詳細の「メモのある問題」からまとめて解けます。</li>' +
+        '<li>「学習」の「問題を検索する」で、単元名や言葉から問題を探せます。</li>' +
+        '<li>「設定」で目標の受検日を入れると、ホームに残り日数を表示します。</li>' +
       '</ul></details>' +
     '<div class="card"><h2>免責事項</h2><p class="note">' + esc(DISCLAIMER) + '</p>' +
       '<p class="note">' + esc(FORMAT_NOTE) + '</p></div>' +
@@ -1058,6 +1073,7 @@ const ROUTES = {
   mock: { title: '模擬試験', tab: 'study', render: renderMockSetup },
   'mock-result': { title: '模擬試験の結果', tab: 'study', render: renderMockResult },
   history: { title: '学習履歴', tab: 'history', render: renderHistory },
+  search: { title: '問題の検索', tab: 'study', render: renderSearch },
   settings: { title: '設定', tab: 'settings', render: renderSettings }
 };
 
@@ -1192,6 +1208,7 @@ appEl.addEventListener('click', function (event) {
   const action = button.dataset.action;
 
   if (handleMockAction(action, button)) return;   // 模擬試験の操作（mock.js）
+  if (handleExtraAction(action, button)) return;  // 検索・カレンダーの操作（extras.js）
 
   if (action === 'start') {
     startSession({

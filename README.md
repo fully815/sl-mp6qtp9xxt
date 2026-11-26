@@ -20,6 +20,42 @@
 
 ファイルを新しく追加したときは、`service-worker.js` の `FILES` の一覧にも追加してください。
 
+## 問題を追加するとき
+
+1. `js/questions.js` の上のほうにある「問題追加用テンプレート」を、`{` から `},` までコピーする
+2. `js/questions-8.js`（一番新しい問題ファイル）を開き、最後の問題の `}` のあとに `,` を付けて、その下に貼る
+3. 中身を書き換える。特に次の3つに注意する
+   - `id`：ほかの問題と重ならない名前にする（例：`spi3-nonverbal-901`）
+   - `examType` と `category`：`js/questions.js` の先頭にある `EXAMS` の `id` から選ぶ
+   - `correctAnswer`：正解の位置。1番目が `0`、2番目が `1`
+4. パソコンで開いて確かめる（上の「パソコンで動かす」）。`F12` を押して「Console」に `[問題データ]` で始まる黄色い行が出ていたら、その問題の書き方に誤りがある
+5. バージョン番号を2か所変えて公開する（上の「アプリを更新するとき」）
+
+問題は、必ず自分で作った文章にしてください。市販の問題集や実際の試験、ネット上の問題文は写さないでください。
+
+### 新しい分野や試験を増やすとき
+
+- 分野を増やす：`js/questions.js` の `EXAMS` で、その試験の `categories` に `{ id: '英数字の名前', name: '表示名' }` を1行足す
+- 試験を増やす：`EXAMS` に、ほかの試験と同じ形のかたまりを1つ足す
+
+### 表や図を付けるとき
+
+`figureData` に、次のどれかを書きます。書き方の例は `js/questions.js` のテンプレートの下にあります。
+
+- 表：`{ type: 'table', caption: '題名', headers: ['列1', '列2'], rows: [['a', 'b']] }`
+- 図形の並び：`{ type: 'shapes', alt: '説明', items: [{ shape: 'circle', filled: true }, { shape: 'question' }] }`
+- マス目：`{ type: 'grid', alt: '説明', rows: 2, cols: 3 }`
+
+## 今後、追加しやすいもの
+
+| やりたいこと | 手を入れる場所 |
+|---|---|
+| 問題を増やす | `js/questions-8.js`（または新しい `questions-9.js` を作り、`index.html` と `service-worker.js` の一覧に足す） |
+| 画面や機能を足す | `js/extras.js` に部品を作り、`js/app.js` の `ROUTES` に画面を登録する |
+| 設定項目を足す | `js/storage.js` の `DEFAULT_SETTINGS` と、`js/app.js` の `renderSettings` |
+| 保存する情報を足す | `js/storage.js`（`KEYS`、書き出しの `exportData`、読み込みの `parseImport` と `importData`） |
+| 別の端末へ記録を移す | 「設定」の「バックアップを保存」と「復元」を使う（端末どうしの自動の同期はしていません） |
+
 ## 公開のしかた（GitHub Pages）
 
 初回だけ行う設定です。
@@ -93,6 +129,7 @@ git push
 | `js/storage.js` | 端末内への保存と読み込み |
 | `js/analytics.js` | 学習記録の集計 |
 | `js/mock.js` | 模擬試験（設定・出題・採点・結果） |
+| `js/extras.js` | 追加機能（受検日と残り日数、メモ、問題の検索、学習カレンダー） |
 | `js/app.js` | 画面の描画と切り替え |
 | `js/pwa.js` | Service Worker の登録、更新の案内、ホーム画面に追加の案内 |
 | `service-worker.js` | オフライン対応（ファイルの保存） |
@@ -132,4 +169,4 @@ git push
 - [x] フェーズ7　GitHub Pagesへの公開（<https://fully815.github.io/sl-mp6qtp9xxt/>）
 - [x] フェーズ8　iPhoneへのインストール
 - [x] フェーズ9　テストと不具合修正
-- [ ] フェーズ10　問題追加と機能拡張
+- [x] フェーズ10　問題追加と機能拡張
