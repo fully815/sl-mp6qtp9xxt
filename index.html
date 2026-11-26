@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <!-- viewport-fit=cover は iPhone のセーフエリア（ノッチ・ホームバー）対応に必要 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Study Log</title>
+  <!-- 検索サービスに載せないための指定 -->
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="description" content="個人用の学習記録アプリ">
+  <meta name="theme-color" content="#14284b">
+
+  <!-- アプリ化（PWA）の設定 -->
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+
+  <!-- iPhone 向け：ホーム画面に追加したとき、アドレスバーなしの全画面で開く -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Study Log">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+
+  <!-- パスはすべて「./」始まりの相対パス。GitHub Pages のサブフォルダでも動くようにするため -->
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <!-- キーボード利用者向け：本文へ直接移動するリンク -->
+  <a class="skip-link" href="#app">本文へ移動</a>
+
+  <header class="app-header">
+    <p class="app-title">Study Log</p>
+  </header>
+
+  <!-- 更新の案内や「ホーム画面に追加」の案内を表示する場所（js/pwa.js） -->
+  <div id="notice-area" class="notices" aria-live="polite"></div>
+
+  <!-- 各画面の中身は js/app.js がここに描画する -->
+  <main id="app" class="app-main" tabindex="-1"></main>
+
+  <nav class="tabbar" aria-label="メインメニュー">
+    <a class="tabbar__item" href="#/home" data-tab="home">
+      <span class="tabbar__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></span>
+      <span>ホーム</span>
+    </a>
+    <a class="tabbar__item" href="#/study" data-tab="study">
+      <span class="tabbar__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6"/></svg></span>
+      <span>学習</span>
+    </a>
+    <a class="tabbar__item" href="#/history" data-tab="history">
+      <span class="tabbar__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg></span>
+      <span>履歴</span>
+    </a>
+    <a class="tabbar__item" href="#/settings" data-tab="settings">
+      <span class="tabbar__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></span>
+      <span>設定</span>
+    </a>
+  </nav>
+
+  <noscript>
+    <p class="noscript">このアプリを使うには JavaScript を有効にしてください。</p>
+  </noscript>
+
+  <!-- 読み込み順が大事：データ → 保存 → 分析 → 模擬試験 → 画面 の順 -->
+  <script src="./js/questions.js"></script>
+  <script src="./js/storage.js"></script>
+  <script src="./js/analytics.js"></script>
+  <script src="./js/mock.js"></script>
+  <script src="./js/app.js"></script>
+  <script src="./js/pwa.js"></script>
+</body>
+</html>
